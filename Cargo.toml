@@ -1,0 +1,26 @@
+[package]
+name = "debfs"
+version = "0.0.1"
+authors = ["Eitan Mosenkis <eitan@mosenkis.net>"]
+edition = "2018"
+
+[dependencies]
+polyfuse = "0.3.3"
+ar = "0.8.0"
+debcontrol = "0.1.1"
+fapt = "0.1.0"
+deb-version = "0.1.1"
+tokio = { version = "0.2.22", features = ["full"]}
+anyhow = "1.0.32"
+polyfuse-tokio = "0.2.1"
+libc = "0.2.74"
+thiserror = "1.0.20"
+semver = "0.10.0"
+tar = "0.4.29"
+gumdrop = "0.8.0"
+rust-lzma = "0.5.1"
+serde = "1.0.115"
+tracing = "0.1.19"
+tracing-subscriber = "0.2.11"
+tracing-futures = "0.2.4"
+serde_json = "1.0.57"
