@@ -354,7 +354,7 @@ impl DebFS {
             };
             trace!("{}: {:?}", path.display(), entry.header().entry_type());
             let dir_inode = if let Some(parent) = path.parent() {
-                self.lookup(parent.into())?
+                self.lookup(parent)?
                     .with_context(|| format!("parent dir does not exist while adding {:?}", path))?
             } else {
                 ROOT_INO
@@ -438,8 +438,8 @@ impl DebFS {
             .map(Box::as_ref)
     }
 
-    fn lookup(&self, path: &Path) -> FSResult<Option<INodeId>> {
-        self.lookup_in(ROOT_INO, path)
+    fn lookup<P: AsRef<Path>>(&self, path: P) -> FSResult<Option<INodeId>> {
+        self.lookup_in(ROOT_INO, path.as_ref())
     }
 
     fn lookup_in(&self, inode: INodeId, path: &Path) -> FSResult<Option<INodeId>> {
@@ -727,4 +727,43 @@ fn dir_entry(kind: u8, name: impl AsRef<OsStr>, ino: u64, off: u64) -> DirEntry 
     let mut e = DirEntry::new(name, ino, off);
     e.set_typ(kind as u32);
     e
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    #[test]
+    fn test() -> anyhow::Result<()> {
+        let fs = {
+            let mut fs = DebFS::new();
+            fs.add_deb("testdata/foo_20.04.4_all.deb")?;
+            fs
+        };
+
+        let inode_id = fs.lookup("etc")?.context("etc not found")?;
+        let inode = fs.get(inode_id, || "while looking up etc".into())?;
+        assert_eq!(inode.name, OsString::from("etc"));
+        assert_eq!(inode.mode, 0o755);
+        assert_eq!(inode.kind(), INodeKind::Dir);
+        assert_eq!(inode.get_children()?.len(), 1);
+        assert_eq!(fs.path(inode_id), OsString::from("etc"));
+
+        let foo_inode_id = inode.get_children()?[0];
+        assert_eq!(
+            fs.lookup("etc/foo")?.context("etc/foo not found")?,
+            foo_inode_id
+        );
+        let foo_inode = fs.get(foo_inode_id, || "while looking up etc/foo".into())?;
+        assert_eq!(foo_inode.name, OsString::from("foo"));
+        assert_eq!(foo_inode.mode, 0o644);
+        assert_eq!(foo_inode.kind(), INodeKind::File);
+        if let INodeContent::File { deb, size } = foo_inode.content {
+            assert_eq!(size, 14);
+            assert!(fs.debs[deb].ends_with(OsString::from("testdata/foo_20.04.4_all.deb")));
+        } else {
+            unreachable!();
+        }
+        assert_eq!(fs.path(foo_inode_id), OsString::from("etc/foo"));
+        Ok(())
+    }
 }

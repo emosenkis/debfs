@@ -9,7 +9,7 @@
 
 ## Missing features
 
-- Unit tests.
+- Better unit tests.
 - Support chrooting into a DebFS (currently fails with a permissions error).
 - Permit modifying the FS (by passing through to an underlying filesystem).
 - Dependency resolution.
@@ -17,6 +17,7 @@
 - Install/remove packages from a mounted DebFS.
 - Smart uninstall (returns the FS to a pristine state as if the package had never been installed).
 - Support file types beyond the currently supported regular files, directories, and symlinks.
+- Verify checksums
 
 ## Usage
 

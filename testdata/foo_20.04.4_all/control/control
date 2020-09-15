@@ -1,0 +1,12 @@
+Package: foo
+Version: 20.04.4
+Architecture: all
+Maintainer: Eitan Mosenkis <eitan@mosenkis,net>
+Installed-Size: 35
+Depends: searchandrescue-common (= 1.5.0-2)
+Suggests: snapd
+Section: admin
+Priority: optional
+Description: Some description about this package that will not do
+ anything.
+Original-Maintainer: Eitan Mosenkis <eitan@mosenkis.net>
